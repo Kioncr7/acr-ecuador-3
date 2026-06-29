@@ -19,6 +19,7 @@ const globalCountriesRegistry = [
     { name: "México", code: "mx" }, { name: "Ecuador", code: "ec" },
     { name: "Inglaterra", code: "gb-eng" }, { name: "República Democrática del Congo", code: "cd" },
     { name: "Argentina", code: "ar" }, { name: "Cabo Verde", code: "cv" },
+    { name: "Curazao", code: "cw" },
     { name: "Australia", code: "au" }, { name: "Egipto", code: "eg" },
     { name: "Suiza", code: "ch" }, { name: "Argelia", code: "dz" },
     { name: "Colombia", code: "co" }, { name: "Ghana", code: "gh" }
@@ -38,6 +39,12 @@ const specialVideos = {
     "Francia": { video: "-France X 180db_[130]-.mp4", quote: "¡Les Bleus! Elegancia, velocidad y jerarquía europea." },
     "Brasil": { video: "copa do mundo começou.mp4", quote: "¡La Canarinha! El Jogo Bonito busca revivir su mística dorada." },
     "Portugal": { video: "El Comandante.mp4", quote: "¡La Selección das Quinas! Talento de élite listo para conquistar el mundo." }
+};
+
+// Mapeo fijo de rivales por partido para la presentación (m1, m3, etc.)
+const scheduleOpponents = {
+    m1: 'Alemania',
+    m3: 'Curazao'
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -139,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return matchKeys.map(key => {
                 const match = scores[key];
                 if ('ecu' in match && 'rival' in match) {
-                    return `${key.toUpperCase()}: ECU ${match.ecu}-${match.rival}`;
+                    return `M${key.replace(/[^0-9]/g, '')}: ECU ${match.ecu}-${match.rival}`;
                 }
                 if ('ecu' in match || 'rival' in match) {
                     return `${key.toUpperCase()}: ${match.ecu ?? 0}-${match.rival ?? 0}`;
@@ -161,6 +168,43 @@ document.addEventListener('DOMContentLoaded', () => {
         return Object.entries(scores)
             .map(([key, value]) => `${key.toUpperCase()}: ${typeof value === 'object' ? JSON.stringify(value) : value}`)
             .join(' | ');
+    }
+
+    function buildScoresHTML(scores) {
+        if (!scores || typeof scores !== 'object') return '<span style="color: var(--text-muted);">Sin datos</span>';
+
+        const entries = Object.entries(scores);
+        if (entries.length === 0) return '<span style="color: var(--text-muted);">Sin datos</span>';
+
+        return entries.map(([key, value]) => {
+            if (value && typeof value === 'object' && 'ecu' in value && 'rival' in value) {
+                const opponentName = scheduleOpponents[key] || 'Rival';
+                const opponentObj = globalCountriesRegistry.find(c => c.name === opponentName);
+                const opponentFlag = opponentObj ? `https://flagcdn.com/w20/${opponentObj.code}.png` : '';
+                const ecuObj = globalCountriesRegistry.find(c => c.name === 'Ecuador');
+                const ecuFlag = ecuObj ? `https://flagcdn.com/w20/${ecuObj.code}.png` : '';
+                return `
+                    <div class="table-matches-column">
+                        <div class="table-mini-match">
+                            ${ecuFlag ? `<img src="${ecuFlag}" alt="ECU" style="width:20px;height:14px;object-fit:cover;border-radius:2px;">` : ''}
+                            <span class="match-team">ECU</span>
+                            <span class="score-badge">${value.ecu}</span>
+                            <span>-</span>
+                            <span class="score-badge">${value.rival}</span>
+                            <img src="${opponentFlag}" alt="${opponentName}" style="width:20px;height:14px;object-fit:cover;border-radius:2px;margin-left:8px;">
+                            <span class="match-label">${opponentName} • ${key.toUpperCase()}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            return `
+                <div class="table-matches-column">
+                    <div class="table-mini-match">
+                        ${key.toUpperCase()}: ${typeof value === 'object' ? JSON.stringify(value) : value}
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     function parseScoresField(value) {
@@ -218,7 +262,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="table-user-name">${record.userName}</td>
-                <td style="font-size:0.85rem; color:var(--text-muted); max-width:300px; overflow:hidden; text-overflow:ellipsis;">${formatScoresSummary(record.scores)}</td>
+                <td>
+                    <div class="table-matches-column">
+                        ${buildScoresHTML(record.scores)}
+                    </div>
+                </td>
                 <td>
                     <div class="table-champion-cell">
                         ${flagUrl ? `<img src="${flagUrl}" alt="">` : ''}

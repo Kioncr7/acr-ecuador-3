@@ -609,20 +609,20 @@ td {
 .table-matches-column {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
 }
 
 .table-mini-match {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     font-size: 0.9rem;
     font-weight: 600;
-    background-color: rgba(0, 0, 0, 0.2);
-    padding: 4px 10px;
+    background-color: rgba(255,255,255,0.04);
+    padding: 6px 10px;
     border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.02);
-    max-width: 250px;
+    border: 1px solid rgba(0,230,118,0.08);
+    max-width: 320px;
 }
 
 .table-mini-match img {
@@ -636,10 +636,29 @@ td {
     color: var(--primary-green);
     font-weight: 800;
     background-color: var(--bg-dark);
-    padding: 1px 6px;
+    padding: 2px 6px;
     border-radius: 4px;
-    margin: 0 2px;
-    border: 1px solid rgba(255, 230, 118, 0.1);
+}
+
+.table-mini-match .match-team {
+    color: var(--text-light);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.table-mini-match .match-team img {
+    width: 20px;
+    height: 14px;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.table-mini-match .match-label {
+    margin-left: auto;
+    color: var(--text-muted);
+    font-size: 0.82rem;
 }
 
 .empty-state {

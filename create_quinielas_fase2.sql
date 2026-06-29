@@ -10,6 +10,11 @@ CREATE TABLE IF NOT EXISTS public.quinielas_fase2 (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Si la tabla ya existía con NOT NULL en estas columnas, elimina esa restricción:
+ALTER TABLE IF EXISTS public.quinielas_fase2
+    ALTER COLUMN finalist_left DROP NOT NULL,
+    ALTER COLUMN finalist_right DROP NOT NULL;
+
 -- Otorga permisos básicos al rol anon si usas la clave pública de Supabase
 -- (necesario si tu cliente web accede sin sesión de usuario).
 GRANT SELECT, INSERT ON public.quinielas_fase2 TO authenticated;
